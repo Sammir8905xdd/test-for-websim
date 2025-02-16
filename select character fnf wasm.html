@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Juego Web</title>
+</head>
+<body>
+    <h1>Mi Juego con WebAssembly</h1>
+
+    <script>
+        // URL directa para descargar el archivo WASM desde Google Drive
+        var wasmUrl = 'https://drive.google.com/uc?export=download&id=1bp_EkyStog_PADhVaqUdrBczC7Ht9miF';
+
+        // Cargar el archivo WASM desde el enlace
+        fetch(wasmUrl)
+            .then(response => response.arrayBuffer())  // Cargarlo como ArrayBuffer
+            .then(bytes => {
+                // Crear y compilar el módulo WASM
+                WebAssembly.instantiate(bytes)
+                    .then(result => {
+                        // Aquí puedes usar el módulo WASM, por ejemplo:
+                        console.log('WASM cargado correctamente', result);
+                        
+                        // Llamar a una función del WASM, por ejemplo 'startGame'
+                        const startGame = result.instance.exports.startGame;
+                        startGame(); // Ejecuta la función startGame() definida en el .wasm
+                    })
+                    .catch(err => {
+                        console.error('Error al cargar el WASM:', err);
+                    });
+            })
+            .catch(err => {
+                console.error('Error al obtener el archivo WASM:', err);
+            });
+    </script>
+</body>
+</html>
