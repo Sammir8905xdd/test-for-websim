@@ -9,30 +9,35 @@
     <h1>Mi Juego con WebAssembly</h1>
 
     <script>
-        // URL directa para descargar el archivo WASM desde Google Drive
+        // URL del archivo WASM en Google Drive
         var wasmUrl = 'https://drive.google.com/uc?export=download&id=1bp_EkyStog_PADhVaqUdrBczC7Ht9miF';
+        // URL del archivo PCK en Google Drive
+        var pckUrl = 'https://drive.google.com/uc?export=download&id=15ycUnpsUNggYUOmcRscPNphBWWZwRVdJ';
 
-        // Cargar el archivo WASM desde el enlace
+        // Cargar y ejecutar el WASM
         fetch(wasmUrl)
-            .then(response => response.arrayBuffer())  // Cargarlo como ArrayBuffer
-            .then(bytes => {
-                // Crear y compilar el módulo WASM
-                WebAssembly.instantiate(bytes)
-                    .then(result => {
-                        // Aquí puedes usar el módulo WASM, por ejemplo:
-                        console.log('WASM cargado correctamente', result);
-                        
-                        // Llamar a una función del WASM, por ejemplo 'startGame'
-                        const startGame = result.instance.exports.startGame;
-                        startGame(); // Ejecuta la función startGame() definida en el .wasm
+            .then(response => response.arrayBuffer())  
+            .then(bytes => WebAssembly.instantiate(bytes))
+            .then(result => {
+                console.log('WASM cargado correctamente', result);
+
+                // Cargar el archivo PCK desde Google Drive
+                fetch(pckUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        var pckObjectURL = URL.createObjectURL(blob);
+
+                        // Ejecutar el juego con el PCK cargado
+                        var engine = new Engine({
+                            executable: wasmUrl,
+                            args: ["--main-pack", pckObjectURL],
+                            onProgress: engineProgress
+                        });
+                        engine.start();
                     })
-                    .catch(err => {
-                        console.error('Error al cargar el WASM:', err);
-                    });
+                    .catch(err => console.error('Error al cargar el PCK:', err));
             })
-            .catch(err => {
-                console.error('Error al obtener el archivo WASM:', err);
-            });
+            .catch(err => console.error('Error al obtener el WASM:', err));
     </script>
 </body>
 </html>
